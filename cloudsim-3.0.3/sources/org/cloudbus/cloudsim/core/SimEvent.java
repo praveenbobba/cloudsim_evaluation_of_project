@@ -8,8 +8,11 @@
 
 package org.cloudbus.cloudsim.core;
 
+import java.util.ArrayList;
+
 /**
- * This class represents a simulation event which is passed between the entities in the simulation.
+ * This class represents a simulation event which is passed between the entities
+ * in the simulation.
  * 
  * @author Costas Simatos
  * @see Simulation
@@ -95,10 +98,50 @@ public class SimEvent implements Cloneable, Comparable<SimEvent> {
 		endWaitingTime = end_waiting_time;
 	}
 
+	// below code added by anupinder singh
+	public void CustomtoString(String className) {
+
+		ArrayList<String> type = new ArrayList<String>();
+		type.add("ENULL");
+		type.add("SEND");
+		type.add("HOLD_DONE");
+		type.add("CREATE");
+		String msg = className + ": -->Event Type = " + type.get(etype)
+				+ ";Event tag = " + CloudSimTags.TagText(tag) + "; source = "
+				+ CloudSim.getEntity(entSrc).getName() + "; destination = "
+				+ CloudSim.getEntity(entDst).getName() + "; Time= " + this.time
+				+ "; endwaiting time = " + this.endWaitingTime;
+		if (data != null) {
+			msg += "; data = " + data.toString();
+		}
+		msg += "\n\n";
+
+		PrintFile.AddtoFile(msg);
+	}
+
 	@Override
 	public String toString() {
-		return "Event tag = " + tag + " source = " + CloudSim.getEntity(entSrc).getName() + " destination = "
-				+ CloudSim.getEntity(entDst).getName();
+		// below code commented is original, rest all added by anupinder singh
+		ArrayList<String> type = new ArrayList<String>();
+		type.add("ENULL");
+		type.add("SEND");
+		type.add("HOLD_DONE");
+		type.add("CREATE");
+		String msg = "-->Event Type = " + type.get(etype) + ";Event tag = "
+				+ CloudSimTags.TagText(tag) + "; source = "
+				+ CloudSim.getEntity(entSrc).getName() + "; destination = "
+				+ CloudSim.getEntity(entDst).getName() + "; Time= " + this.time
+				+ "; endwaiting time = " + this.endWaitingTime;
+		if (data != null) {
+			msg += "; data = " + data.toString();
+		}
+		msg += "\n\n";
+
+		return "\n\n" + msg;
+
+		// return "Event tag = " + tag + " source = " +
+		// CloudSim.getEntity(entSrc).getName() + " destination = "
+		// + CloudSim.getEntity(entDst).getName();
 	}
 
 	/**
@@ -160,7 +203,8 @@ public class SimEvent implements Cloneable, Comparable<SimEvent> {
 	}
 
 	/**
-	 * Get the simulation time that this event was removed from the queue for service.
+	 * Get the simulation time that this event was removed from the queue for
+	 * service.
 	 * 
 	 * @return The simulation time
 	 */
@@ -217,7 +261,8 @@ public class SimEvent implements Cloneable, Comparable<SimEvent> {
 	/**
 	 * Set the source entity of this event.
 	 * 
-	 * @param s The unique id number of the entity
+	 * @param s
+	 *            The unique id number of the entity
 	 */
 	public void setSource(int s) {
 		entSrc = s;
@@ -226,7 +271,8 @@ public class SimEvent implements Cloneable, Comparable<SimEvent> {
 	/**
 	 * Set the destination entity of this event.
 	 * 
-	 * @param d The unique id number of the entity
+	 * @param d
+	 *            The unique id number of the entity
 	 */
 	public void setDestination(int d) {
 		entDst = d;
