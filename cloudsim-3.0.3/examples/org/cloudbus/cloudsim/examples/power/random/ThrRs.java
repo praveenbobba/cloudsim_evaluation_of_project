@@ -35,7 +35,7 @@ public class ThrRs {
 		String workload = "random"; // Random workload
 		String vmAllocationPolicy = "thr"; // Static Threshold (THR) VM allocation policy
 		String vmSelectionPolicy = "rs"; // Random Selection (RS) VM selection policy
-		String parameter = "0.8"; // the static utilization threshold
+		String parameter = "1.1"; // the static utilization threshold
 
 		new RandomRunner(
 				enableOutput,

@@ -423,20 +423,51 @@ public abstract class PowerVmAllocationPolicyMigrationAbstract extends PowerVmAl
 	 * @return the under utilized host
 	 */
 	protected PowerHost getUnderUtilizedHost(Set<? extends Host> excludedHosts) {
-		double minUtilization = 1;
+		double minUtilization = 0.75;
 		PowerHost underUtilizedHost = null;
 		for (PowerHost host : this.<PowerHost> getHostList()) {
 			if (excludedHosts.contains(host)) {
 				continue;
 			}
-			double utilization = host.getUtilizationOfCpu();
-			if (utilization > 0 && utilization < minUtilization
+			addHistoryEntry(host, 1.1);
+			double totalRequestedMips = 0;
+			double totalRequestedRam = 0;
+			double totalRequestedBw = 0;
+			for (Vm vm : host.getVmList()) {
+				totalRequestedMips += vm.getCurrentRequestedTotalMips();
+				totalRequestedRam += vm.getCurrentRequestedRam();
+				totalRequestedBw += vm.getCurrentRequestedBw();
+			}
+			double pm_lf = 0.7 * ( totalRequestedMips / host.getTotalMips() ) + 0.25 * ( totalRequestedRam / host.getRam() ) + 0.05 * ( totalRequestedBw / host.getBw() );
+			double utilization = ( pm_lf  / get_pm_alf() ) ;
+			
+			if ( utilization < minUtilization
 					&& !areAllVmsMigratingOutOrAnyVmMigratingIn(host)) {
-				minUtilization = utilization;
+				//minUtilization = utilization;
 				underUtilizedHost = host;
 			}
 		}
 		return underUtilizedHost;
+	}
+	
+	protected double get_pm_alf() {
+		double total_pm_lf = 0;
+		double pm_alf;
+		for (Host host1 : getHostList()) {
+			PowerHost host = (PowerHost)host1 ;
+			addHistoryEntry(host, 1.1);
+			double totalRequestedMips = 0;
+			double totalRequestedRam = 0;
+			double totalRequestedBw = 0;
+			for (Vm vm : host.getVmList()) {
+				totalRequestedMips += vm.getCurrentRequestedTotalMips();
+				totalRequestedRam += vm.getCurrentRequestedRam();
+				totalRequestedBw += vm.getCurrentRequestedBw();
+			}
+			total_pm_lf += 0.7 * ( totalRequestedMips / host.getTotalMips() ) + 0.25 * ( totalRequestedRam / host.getRam() ) + 0.05 * ( totalRequestedBw / host.getBw() );
+		}
+		pm_alf = total_pm_lf / getHostList().size();
+		return pm_alf ;
 	}
 
 	/**

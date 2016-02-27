@@ -95,7 +95,7 @@ public class CloudSim_DataCenter_Setup {
 
 			//the second VM will have twice the priority of VM1 and so will receive twice CPU time
 			vmid++;
-			Vm vm2 = new Vm(vmid, brokerId, mips * 2, pesNumber, ram, bw, size, vmm, new CloudletSchedulerTimeShared());
+			Vm vm2 = new Vm(vmid, brokerId, mips, pesNumber, ram, bw, size, vmm, new CloudletSchedulerTimeShared());
 			
 			vmid++;
 			Vm vm3 = new Vm(vmid, brokerId, mips, pesNumber, ram, bw, size, vmm, new CloudletSchedulerTimeShared());
@@ -171,11 +171,11 @@ public class CloudSim_DataCenter_Setup {
 			cloudlet1.setUserId(brokerId);
 
 			id++;
-			Cloudlet cloudlet2 = new Cloudlet(id, length, pesNumber, fileSize, outputSize, utilizationModel, utilizationModel, utilizationModel);
+			Cloudlet cloudlet2 = new Cloudlet(id, length * 2, pesNumber, fileSize, outputSize, utilizationModel, utilizationModel, utilizationModel);
 			cloudlet2.setUserId(brokerId);
 			
 			id++;
-			Cloudlet cloudlet3 = new Cloudlet(id, length * 2, pesNumber, fileSize, outputSize, utilizationModel, utilizationModel, utilizationModel);
+			Cloudlet cloudlet3 = new Cloudlet(id, length * 3, pesNumber, fileSize, outputSize, utilizationModel, utilizationModel, utilizationModel);
 			cloudlet3.setUserId(brokerId);
 
 			//add the cloudlets to the list
@@ -189,9 +189,9 @@ public class CloudSim_DataCenter_Setup {
 
 			//bind the cloudlets to the vms. This way, the broker
 			// will submit the bound cloudlets only to the specific VM
-			broker.bindCloudletToVm(cloudlet1.getCloudletId(),vm2.getId());
+			broker.bindCloudletToVm(cloudlet1.getCloudletId(),vm1.getId());
 			broker.bindCloudletToVm(cloudlet2.getCloudletId(),vm2.getId());
-			broker.bindCloudletToVm(cloudlet3.getCloudletId(),vm2.getId());
+			broker.bindCloudletToVm(cloudlet3.getCloudletId(),vm3.getId());
 
 			// Sixth step: Starts the simulation
 			CloudSim.startSimulation();
