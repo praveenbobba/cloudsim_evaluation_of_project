@@ -9,12 +9,14 @@
 package org.cloudbus.cloudsim.power;
 
 import java.util.List;
-import java.util.Random;
+
 
 import org.cloudbus.cloudsim.Vm;
 
+
+
 /**
- * The Random Selection (RS) VM selection policy.
+ * The Minimum Utilization (MU) VM selection policy.
  * 
  * If you are using any algorithms, policies or workload included in the power package, please cite
  * the following paper:
@@ -41,8 +43,42 @@ public class PowerVmSelectionPolicyRandomSelection extends PowerVmSelectionPolic
 		if (migratableVms.isEmpty()) {
 			return null;
 		}
-		int index = (new Random()).nextInt(migratableVms.size());
-		return migratableVms.get(index);
+		Vm vmToMigrate = null;
+		double vm_alf = get_vm_alf(host) ;
+		double min_vm_lf = Double.MAX_VALUE;
+		for (Vm vm : migratableVms) {
+			if (vm.isInMigration()) {
+				continue;
+			}
+			double vm_lf = 70 * (vm.getCurrentRequestedTotalMips() / host.getTotalMips()) + 25 * (vm.getCurrentRequestedRam() / host.getRam()) + 5 * ( vm.getCurrentRequestedBw() / host.getBw() );
+			if (vm_lf > vm_alf && vm_lf < min_vm_lf) {
+				min_vm_lf = vm_lf;
+				vmToMigrate = vm;
+			}
+		}
+		return vmToMigrate;
+	}
+	
+	protected double get_vm_alf(PowerHost host) {
+		double total_vm_lf = 0;
+		double vm_alf = 0;
+		double hostMips = host.getTotalMips() ;
+		double hostRam = host.getRam() ;
+		double hostBw = host.getBw() ;
+		double vmCount = 0 ;
+			//addHistoryEntry(host, getUtilizationThreshold());
+
+			for (Vm vm : host.getVmList()) {
+				vmCount += 1 ;
+				total_vm_lf += 70 * (vm.getCurrentRequestedTotalMips() / hostMips ) + 25 * (vm.getCurrentRequestedRam() / hostRam ) + 5 * ( vm.getCurrentRequestedBw() / hostBw );
+			}
+			//total_vm_lf += 70 * ( totalRequestedMips / host.getTotalMips() ) + 25 * ( totalRequestedRam / host.getRam() ) + 5 * ( totalRequestedBw / host.getBw() );
+			//Log.printLine("total pmlf is " + total_pm_lf);
+			//total_pm_lf = 4000.0 ;
+		
+		vm_alf = total_vm_lf / vmCount;
+		//Log.printLine(" pm_alf is " + pm_alf);
+		return vm_alf ;
 	}
 
 }

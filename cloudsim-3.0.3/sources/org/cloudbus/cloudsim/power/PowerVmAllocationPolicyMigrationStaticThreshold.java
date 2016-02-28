@@ -11,7 +11,7 @@ package org.cloudbus.cloudsim.power;
 import java.util.List;
 
 import org.cloudbus.cloudsim.Host;
-import org.cloudbus.cloudsim.Log;
+//import org.cloudbus.cloudsim.Log;
 import org.cloudbus.cloudsim.Vm;
 
 /**
@@ -71,7 +71,7 @@ public class PowerVmAllocationPolicyMigrationStaticThreshold extends PowerVmAllo
 		//Log.printLine(" pmlf is " + pm_lf);
 		pm_alf = get_pm_alf() ;
 		if ( pm_alf > 70  ){
-			utilization = ( pm_lf / get_pm_alf() );
+			utilization = ( pm_lf / pm_alf );
 			return utilization > getUtilizationThreshold();
 		}
 		else if(pm_lf > 70){
@@ -99,11 +99,11 @@ public class PowerVmAllocationPolicyMigrationStaticThreshold extends PowerVmAllo
 				totalRequestedBw += vm.getCurrentRequestedBw();
 			}
 			total_pm_lf += 70 * ( totalRequestedMips / host.getTotalMips() ) + 25 * ( totalRequestedRam / host.getRam() ) + 5 * ( totalRequestedBw / host.getBw() );
-			Log.printLine("total pmlf is " + total_pm_lf);
+			//Log.printLine("total pmlf is " + total_pm_lf);
 			//total_pm_lf = 4000.0 ;
 		}
 		pm_alf = total_pm_lf / getHostList().size();
-		Log.printLine(" pm_alf is " + pm_alf);
+		//Log.printLine(" pm_alf is " + pm_alf);
 		return pm_alf ;
 	}
 	/**

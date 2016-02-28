@@ -423,7 +423,7 @@ public abstract class PowerVmAllocationPolicyMigrationAbstract extends PowerVmAl
 	 * @return the under utilized host
 	 */
 	protected PowerHost getUnderUtilizedHost(Set<? extends Host> excludedHosts) {
-		double minUtilization = 0.75;
+		double minUtilization ;
 		PowerHost underUtilizedHost = null;
 		for (PowerHost host : this.<PowerHost> getHostList()) {
 			if (excludedHosts.contains(host)) {
@@ -433,19 +433,38 @@ public abstract class PowerVmAllocationPolicyMigrationAbstract extends PowerVmAl
 			double totalRequestedMips = 0;
 			double totalRequestedRam = 0;
 			double totalRequestedBw = 0;
+			double pm_alf;
+			double utilization;
 			for (Vm vm : host.getVmList()) {
 				totalRequestedMips += vm.getCurrentRequestedTotalMips();
 				totalRequestedRam += vm.getCurrentRequestedRam();
 				totalRequestedBw += vm.getCurrentRequestedBw();
 			}
-			double pm_lf = 0.7 * ( totalRequestedMips / host.getTotalMips() ) + 0.25 * ( totalRequestedRam / host.getRam() ) + 0.05 * ( totalRequestedBw / host.getBw() );
-			double utilization = ( pm_lf  / get_pm_alf() ) ;
-			
-			if ( utilization < minUtilization
-					&& !areAllVmsMigratingOutOrAnyVmMigratingIn(host)) {
-				//minUtilization = utilization;
-				underUtilizedHost = host;
+			double pm_lf = 70 * ( totalRequestedMips / host.getTotalMips() ) + 25 * ( totalRequestedRam / host.getRam() ) + 5 * ( totalRequestedBw / host.getBw() );
+			pm_alf = get_pm_alf() ;
+			if ( pm_alf > 50  ){
+				minUtilization = 0.5 ;
+				utilization = ( pm_lf / pm_alf );
+				if ( utilization < minUtilization
+						&& !areAllVmsMigratingOutOrAnyVmMigratingIn(host)) {
+					//minUtilization = utilization;
+					underUtilizedHost = host;
+					return underUtilizedHost;
+				}
 			}
+			else if ( pm_alf < 50 && pm_alf > 30  ){
+				minUtilization = 0.6 ;
+				utilization = ( pm_lf / pm_alf );
+				if ( utilization < minUtilization
+						&& !areAllVmsMigratingOutOrAnyVmMigratingIn(host)) {
+					//minUtilization = utilization;
+					underUtilizedHost = host;
+					return underUtilizedHost;
+				}
+			}
+			
+			
+			
 		}
 		return underUtilizedHost;
 	}
@@ -453,7 +472,7 @@ public abstract class PowerVmAllocationPolicyMigrationAbstract extends PowerVmAl
 	protected double get_pm_alf() {
 		double total_pm_lf = 0;
 		double pm_alf;
-		for (Host host1 : getHostList()) {
+		for (Host host1 :  getHostList()) {
 			PowerHost host = (PowerHost)host1 ;
 			addHistoryEntry(host, 1.1);
 			double totalRequestedMips = 0;
@@ -464,9 +483,12 @@ public abstract class PowerVmAllocationPolicyMigrationAbstract extends PowerVmAl
 				totalRequestedRam += vm.getCurrentRequestedRam();
 				totalRequestedBw += vm.getCurrentRequestedBw();
 			}
-			total_pm_lf += 0.7 * ( totalRequestedMips / host.getTotalMips() ) + 0.25 * ( totalRequestedRam / host.getRam() ) + 0.05 * ( totalRequestedBw / host.getBw() );
+			total_pm_lf += 70 * ( totalRequestedMips / host.getTotalMips() ) + 25 * ( totalRequestedRam / host.getRam() ) + 5 * ( totalRequestedBw / host.getBw() );
+			//Log.printLine("total pmlf is " + total_pm_lf);
+			//total_pm_lf = 4000.0 ;
 		}
 		pm_alf = total_pm_lf / getHostList().size();
+		//Log.printLine(" pm_alf is " + pm_alf);
 		return pm_alf ;
 	}
 
