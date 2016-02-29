@@ -469,7 +469,7 @@ public abstract class PowerVmAllocationPolicyMigrationAbstract extends PowerVmAl
 		}
 		return underUtilizedHost;
 	}
-	public static double max_pm_alf = 0.0;
+	//public static double max_pm_alf = 0.0;
 	protected double get_pm_alf() {
 		double total_pm_lf = 0;
 		double pm_alf;
@@ -495,9 +495,9 @@ public abstract class PowerVmAllocationPolicyMigrationAbstract extends PowerVmAl
 			//total_pm_lf = 4000.0 ;
 		}
 		pm_alf = total_pm_lf / non_zero_host_count;
-		if(pm_alf > max_pm_alf )
-					max_pm_alf = pm_alf ;
-				Log.printLine(" max pm_alf is " + max_pm_alf);
+		//if(pm_alf > max_pm_alf )
+					//max_pm_alf = pm_alf ;
+				//Log.printLine(" max pm_alf is " + max_pm_alf);
 		//Log.printLine(" pm_alf is " + pm_alf);
 		return pm_alf ;
 	}
