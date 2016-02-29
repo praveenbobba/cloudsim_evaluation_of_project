@@ -11,7 +11,7 @@ package org.cloudbus.cloudsim.power;
 import java.util.List;
 
 import org.cloudbus.cloudsim.Host;
-//import org.cloudbus.cloudsim.Log;
+import org.cloudbus.cloudsim.Log;
 import org.cloudbus.cloudsim.Vm;
 
 /**
@@ -31,8 +31,8 @@ import org.cloudbus.cloudsim.Vm;
 public class PowerVmAllocationPolicyMigrationStaticThreshold extends PowerVmAllocationPolicyMigrationAbstract {
 
 	/** The utilization threshold. */
-	private double utilizationThreshold = 1.1;
-
+	private double utilizationThreshold = 1.4;
+	//public static double max_pm_alf = 0.0;
 	/**
 	 * Instantiates a new power vm allocation policy migration mad.
 	 * 
@@ -70,12 +70,13 @@ public class PowerVmAllocationPolicyMigrationStaticThreshold extends PowerVmAllo
 		double pm_lf = 70 * ( totalRequestedMips / host.getTotalMips() ) + 25 * ( totalRequestedRam / host.getRam() ) + 5 * ( totalRequestedBw / host.getBw() );
 		//Log.printLine(" pmlf is " + pm_lf);
 		pm_alf = get_pm_alf() ;
-		if ( pm_alf > 70  ){
+		if ( pm_alf < 30  ){
 			utilization = ( pm_lf / pm_alf );
-			return utilization > getUtilizationThreshold();
+			return utilization > 1.8;
 		}
-		else if(pm_lf > 70){
-			return true ;
+		else if(pm_alf >= 30){
+			utilization = ( pm_lf / pm_alf );
+			return utilization > 1.5;
 		}
 		else
 			return false ;
@@ -87,6 +88,8 @@ public class PowerVmAllocationPolicyMigrationStaticThreshold extends PowerVmAllo
 	protected double get_pm_alf() {
 		double total_pm_lf = 0;
 		double pm_alf;
+		double pm_lf;
+		double non_zero_host_count = 0 ;
 		for (Host host1 :  getHostList()) {
 			PowerHost host = (PowerHost)host1 ;
 			addHistoryEntry(host, getUtilizationThreshold());
@@ -98,12 +101,18 @@ public class PowerVmAllocationPolicyMigrationStaticThreshold extends PowerVmAllo
 				totalRequestedRam += vm.getCurrentRequestedRam();
 				totalRequestedBw += vm.getCurrentRequestedBw();
 			}
-			total_pm_lf += 70 * ( totalRequestedMips / host.getTotalMips() ) + 25 * ( totalRequestedRam / host.getRam() ) + 5 * ( totalRequestedBw / host.getBw() );
+			pm_lf = 70 * ( totalRequestedMips / host.getTotalMips() ) + 25 * ( totalRequestedRam / host.getRam() ) + 5 * ( totalRequestedBw / host.getBw() );
+			if(pm_lf != 0.0)
+				non_zero_host_count += 1;
+			
+			total_pm_lf += pm_lf ;
 			//Log.printLine("total pmlf is " + total_pm_lf);
 			//total_pm_lf = 4000.0 ;
 		}
-		pm_alf = total_pm_lf / getHostList().size();
-		//Log.printLine(" pm_alf is " + pm_alf);
+		pm_alf = total_pm_lf / non_zero_host_count;
+		//if(pm_alf > max_pm_alf )
+		//	max_pm_alf = pm_alf ;
+		//Log.printLine(" max pm_alf is " + max_pm_alf);
 		return pm_alf ;
 	}
 	/**

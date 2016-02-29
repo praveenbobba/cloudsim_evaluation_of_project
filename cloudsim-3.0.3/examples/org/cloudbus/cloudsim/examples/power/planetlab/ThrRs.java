@@ -37,7 +37,7 @@ public class ThrRs {
 		String workload = "20110303"; // PlanetLab workload
 		String vmAllocationPolicy = "thr"; // Static Threshold (THR) VM allocation policy
 		String vmSelectionPolicy = "rs"; // Random Selection (RS) VM selection policy
-		String parameter = "0.8"; // the static utilization threshold
+		String parameter = "1.1"; // the static utilization threshold
 
 		new PlanetLabRunner(
 				enableOutput,
